@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!--
+  WARN :
+  LOCAL TESTING FILE
+
+  NOT FROM PUBLIC GITHUB PAGES REPO
+  -->
   <meta charset="UTF-8">
   <title>Dynamic Clock</title>
   <link id="favicon" rel="icon" type="image/png" href="timenow/imgs/default.png">
@@ -273,51 +279,58 @@
       }, 5000);
     }
 
-    function resetButtonTimer() {
-      clearTimeout(btnTimeout);
-      if (sidebar.classList.contains('open')) {
-        toggleBtn.style.opacity = '1';
-        toggleBtn.style.pointerEvents = 'auto';
-        btnTimeout = setTimeout(() => {
-          toggleBtn.style.opacity = '0';
-          toggleBtn.style.pointerEvents = 'none';
-        }, 5000);
-      } else {
-        toggleBtn.style.opacity = '1';
-        toggleBtn.style.pointerEvents = 'auto';
-      }
+    function showToggleButton() {
+      toggleBtn.style.opacity = '1';
+      toggleBtn.style.pointerEvents = 'auto';
     }
 
+    function hideToggleButton() {
+      toggleBtn.style.opacity = '0';
+      toggleBtn.style.pointerEvents = 'none';
+    }
+
+    function resetButtonTimer() {
+      clearTimeout(btnTimeout);
+      showToggleButton();
+      btnTimeout = setTimeout(() => {
+        hideToggleButton();
+      }, 5000);
+    }
+
+    function resetSidebarTimer() {
+      clearTimeout(sidebarTimeout);
+      sidebarTimeout = setTimeout(() => {
+        sidebar.classList.remove('open');
+        clockContainer.style.marginLeft = '0';
+        resetButtonTimer();
+      }, 5000);
+    }
+    
     toggleBtn.addEventListener('click', () => {
       const isOpen = sidebar.classList.toggle('open');
       clockContainer.style.marginLeft = isOpen ? '250px' : '0';
     
       if (isOpen) {
         resetSidebarTimer();
-        resetButtonTimer();
       } else {
         clearTimeout(sidebarTimeout);
-        clearTimeout(btnTimeout);
-        toggleBtn.style.opacity = '1';
-        toggleBtn.style.pointerEvents = 'auto';
       }
+      resetButtonTimer();
     });
+
+    document.addEventListener('mousemove', resetButtonTimer);
 
     sidebar.addEventListener('mousemove', () => {
       resetSidebarTimer();
       resetButtonTimer();
     });
-
     sidebar.addEventListener('keydown', () => {
       resetSidebarTimer();
       resetButtonTimer();
     });
 
-    document.addEventListener('mousemove', () => {
-      toggleBtn.style.opacity = '1';
-      toggleBtn.style.pointerEvents = 'auto';
-      resetButtonTimer();
-    });
+    resetButtonTimer();
+    
     updateFaviconAndTitle();
     setInterval(updateFaviconAndTitle, 60000);
   </script>
