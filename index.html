@@ -223,30 +223,27 @@
     function updateFaviconAndTitle() {
       const now = new Date();
       const hours = now.getHours();
-      const minutes = now.getMinutes();
     
       const faviconEl = document.getElementById('favicon');
       let faviconPath = '';
       let titleText = '';
     
-      if (hours === 0 && minutes === 0) {
-        faviconPath = 'lettucetimenow/imgs/status_midnight.png';
+      if (hours >= 0 && hours < 3) {
+        faviconPath = './imgs/status_midnight.png';
         titleText = 'Good Night!';
-      } else if (hours === 3 && minutes === 0) {
-        faviconPath = 'lettucetimenow/imgs/status_morning.png';
+      } else if (hours >= 3 && hours < 12) {
+        faviconPath = './imgs/status_morning.png';
         titleText = 'Good Morning!';
-      } else if (hours === 12 && minutes === 0) {
-        faviconPath = 'lettucetimenow/imgs/status_evening_solar_noon.png';
+      } else if (hours >= 12 && hours < 18) {
+        faviconPath = './imgs/status_evening_solar_noon.png';
         titleText = 'Good Afternoon!';
-      } else if (hours === 18 && minutes === 0) {
-        faviconPath = 'lettucetimenow/imgs/status_evening.png';
+      } else {
+        faviconPath = './imgs/status_evening.png';
         titleText = 'Good Evening!';
       }
     
-      if (faviconPath && titleText) {
-        faviconEl.href = faviconPath;
-        document.title = titleText;
-      }
+      faviconEl.href = faviconPath;
+      document.title = titleText;
     }
 
     formatToggle.addEventListener('change', () => {
@@ -321,6 +318,8 @@
       toggleBtn.style.pointerEvents = 'auto';
       resetButtonTimer();
     });
+    updateFaviconAndTitle();
+    setInterval(updateFaviconAndTitle, 60000);
   </script>
 </body>
 </html>
