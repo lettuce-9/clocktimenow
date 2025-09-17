@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,6 +17,7 @@
       align-items: center;
       height: 100vh;
       text-align: center;
+      transition: background 0.3s, color 0.3s;
     }
 
     #time {
@@ -26,10 +26,44 @@
       line-height: 1;
     }
 
+    #milliseconds {
+      font-size: 2vw;
+      font-weight: 300;
+      margin-top: 10px;
+      display: none;
+    }
+
     #date {
       font-size: 1.5vw;
       font-weight: 300;
       margin-top: 20px;
+    }
+
+    .settings {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      font-size: 0.9vw;
+      display: none;
+      transition: opacity 0.5s;
+    }
+
+    .settings input {
+      margin-right: 5px;
+    }
+
+    .dark-mode {
+      background: #121212;
+      color: #f0f0f0;
+    }
+
+    .dark-mode .settings {
+      background: rgba(30, 30, 30, 0.9);
+      color: #f0f0f0;
     }
 
     @media (max-width: 768px) {
@@ -37,31 +71,97 @@
         font-size: 20vw;
       }
 
+      #milliseconds {
+        font-size: 5vw;
+      }
+
       #date {
         font-size: 4vw;
+      }
+
+      .settings {
+        font-size: 2.5vw;
       }
     }
   </style>
 </head>
 <body>
+
   <div id="time">--:--:--</div>
+  <div id="milliseconds"></div>
   <div id="date">Loading date...</div>
 
+  <div class="settings" id="settingsPanel">
+    <label><input type="checkbox" id="formatToggle"> 12-hour format</label><br>
+    <label><input type="checkbox" id="darkModeToggle"> Dark mode</label><br>
+    <label><input type="checkbox" id="msToggle"> Show milliseconds</label>
+  </div>
+
   <script>
+    const timeEl = document.getElementById('time');
+    const msEl = document.getElementById('milliseconds');
+    const dateEl = document.getElementById('date');
+
+    const formatToggle = document.getElementById('formatToggle');
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const msToggle = document.getElementById('msToggle');
+    const settingsPanel = document.getElementById('settingsPanel');
+
+    let is12Hour = false;
+    let showMilliseconds = false;
+    let darkMode = false;
+    let hideTimeout;
+
     function updateClock() {
       const now = new Date();
-
-      const hours = String(now.getHours()).padStart(2, '0');
+      let hours = now.getHours();
       const minutes = String(now.getMinutes()).padStart(2, '0');
       const seconds = String(now.getSeconds()).padStart(2, '0');
-      document.getElementById('time').textContent = `${hours}:${minutes}:${seconds}`;
+      const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
+
+      let suffix = '';
+      if (is12Hour) {
+        suffix = hours >= 12 ? ' PM' : ' AM';
+        hours = hours % 12 || 12;
+      }
+
+      timeEl.textContent = `${String(hours).padStart(2, '0')}:${minutes}:${seconds}${suffix}`;
+
+      if (showMilliseconds) {
+        msEl.style.display = 'block';
+        msEl.textContent = milliseconds;
+      } else {
+        msEl.style.display = 'none';
+      }
 
       const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-      document.getElementById('date').textContent = now.toLocaleDateString(undefined, options);
+      dateEl.textContent = now.toLocaleDateString(undefined, options);
     }
 
-    setInterval(updateClock, 5);
+    setInterval(updateClock, 50);
     updateClock();
+
+    formatToggle.addEventListener('change', () => {
+      is12Hour = formatToggle.checked;
+    });
+
+    darkModeToggle.addEventListener('change', () => {
+      darkMode = darkModeToggle.checked;
+      document.body.classList.toggle('dark-mode', darkMode);
+    });
+
+    msToggle.addEventListener('change', () => {
+      showMilliseconds = msToggle.checked;
+    });
+
+    document.addEventListener('mousemove', () => {
+      settingsPanel.style.display = 'block';
+      clearTimeout(hideTimeout);
+      hideTimeout = setTimeout(() => {
+        settingsPanel.style.display = 'none';
+      }, 5000);
+    });
   </script>
+
 </body>
 </html>
